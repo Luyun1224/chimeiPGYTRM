@@ -81,32 +81,43 @@ header{
 .f textarea{min-height:96px;resize:vertical}
 
 /* ---------- Items ---------- */
-.item{padding:12px 14px;border-bottom:1px solid #F0F3F8}
+.item{
+  position:relative;display:flex;align-items:center;gap:14px;
+  padding:11px 14px 11px 18px;border-bottom:1px solid #EEF1F6
+}
 .item:last-child{border-bottom:none}
-.item.pending{background:#FFFBF3}
-.item.pending::before{content:"";position:absolute}
-.itop{display:flex;gap:10px;align-items:flex-start}
+.item::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:transparent;transition:background .15s ease}
+.item.pending::before{background:#F0C583}
+.item.zero::before{background:var(--red)}
+.item.partial::before{background:#D89A2B}
+.item.full::before{background:var(--green)}
+.itxt{flex:1 1 auto;min-width:0;font-size:15px;font-weight:700;line-height:1.55;color:#16203A}
 .code{
-  flex:0 0 auto;font-size:11px;font-weight:700;color:var(--navy-2);background:#EDF1F8;
-  border-radius:6px;padding:3px 6px;margin-top:2px;letter-spacing:.3px
+  display:inline-block;font-size:11px;font-weight:700;color:var(--navy-2);background:#EDF1F8;
+  border-radius:5px;padding:2px 6px;margin-right:8px;letter-spacing:.3px;vertical-align:2px
 }
-.itxt{flex:1 1 auto;font-size:14.5px;line-height:1.55}
-.max{flex:0 0 auto;font-size:11px;color:var(--muted);background:#F2F4F8;border-radius:6px;padding:3px 7px;margin-top:2px;white-space:nowrap}
 .note{
-  display:inline-block;margin-top:6px;font-size:12px;color:#8A5A12;background:#FFF3E0;
-  border-left:3px solid var(--orange);border-radius:0 6px 6px 0;padding:5px 8px;line-height:1.45
+  display:block;margin-top:6px;font-size:12.5px;font-weight:400;color:#8A5A12;background:#FFF6E8;
+  border-left:3px solid var(--orange);border-radius:0 6px 6px 0;padding:5px 9px;line-height:1.5
 }
-.opts{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.rt{flex:0 0 auto;display:flex;align-items:center;gap:10px}
+.maxlab{font-size:11px;color:var(--muted);white-space:nowrap}
+.opts{display:flex;gap:6px}
 .opts button{
-  flex:1 1 0;min-width:52px;min-height:44px;font-family:inherit;font-size:15px;font-weight:700;
-  border:1.5px solid var(--line);background:#fff;color:var(--muted);border-radius:10px;cursor:pointer;
+  width:46px;height:44px;font-family:inherit;font-size:16px;font-weight:700;
+  border:1.5px solid var(--line);background:#fff;color:#98A0AE;border-radius:9px;cursor:pointer;
   transition:all .12s ease
 }
-.opts button:active{transform:scale(.97)}
+.opts button:active{transform:scale(.94)}
 .opts button.on{background:var(--navy);border-color:var(--navy);color:#fff}
 .opts button.on.zero{background:var(--red);border-color:var(--red)}
 .opts button.on.full{background:var(--green);border-color:var(--green)}
 .opts button:focus-visible{outline:2px solid var(--orange);outline-offset:2px}
+@media(max-width:720px){
+  .item{display:block;padding:12px 14px 12px 18px}
+  .rt{margin-top:10px;justify-content:flex-end}
+  .opts button{width:54px;height:46px}
+}
 
 /* ---------- Toolbar ---------- */
 .tools{display:flex;gap:8px;padding:0 2px 2px;flex-wrap:wrap}
@@ -196,6 +207,13 @@ header{
     <button type="button" onclick="fillAll()">全部給滿分</button>
     <button type="button" onclick="jumpPending()">跳到未評分</button>
     <button type="button" class="warn" onclick="clearAll()">全部清除</button>
+  </div>
+
+  <div style="display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted);padding:8px 4px 2px">
+    <span><i style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#F0C583;vertical-align:0"></i> 未評分</span>
+    <span><i style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#B4472E;vertical-align:0"></i> 0 分</span>
+    <span><i style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#D89A2B;vertical-align:0"></i> 部分給分</span>
+    <span><i style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#0E7C5A;vertical-align:0"></i> 滿分</span>
   </div>
 
   <div id="sections"></div>
@@ -333,12 +351,11 @@ function render(){
       }
       return `
       <div class="item pending" id="item-${it.id}">
-        <div class="itop">
-          <span class="code">${esc(it.code)}</span>
-          <div class="itxt">${esc(it.text)}${it.note?`<div class="note">備註：${esc(it.note)}</div>`:''}</div>
-          <span class="max">配分 ${it.max}</span>
+        <div class="itxt"><span class="code">${esc(it.code)}</span>${esc(it.text)}${it.note?`<span class="note">備註：${esc(it.note)}</span>`:''}</div>
+        <div class="rt">
+          <span class="maxlab">配分 ${it.max}</span>
+          <div class="opts">${opts.join('')}</div>
         </div>
-        <div class="opts" data-max="${it.max}">${opts.join('')}</div>
       </div>`;
     }).join('');
     return `
@@ -358,7 +375,8 @@ function setScore(id, v){
   scores[id] = v;
   const item = document.getElementById('item-'+id);
   const max = ALL.find(x=>x.id===id).max;
-  item.classList.remove('pending');
+  item.classList.remove('pending','zero','partial','full');
+  item.classList.add(v===0 ? 'zero' : (v===max ? 'full' : 'partial'));
   item.querySelectorAll('.opts button').forEach(b=>{
     const bv = Number(b.dataset.v);
     b.classList.toggle('on', bv===v);
@@ -375,6 +393,7 @@ function clearAll(){
   ALL.forEach(it=>{
     delete scores[it.id];
     const item = document.getElementById('item-'+it.id);
+    item.classList.remove('zero','partial','full');
     item.classList.add('pending');
     item.querySelectorAll('.opts button').forEach(b=>b.classList.remove('on','zero','full'));
   });
@@ -514,6 +533,7 @@ function resetForm(){
   ALL.forEach(it=>{
     delete scores[it.id];
     const item = document.getElementById('item-'+it.id);
+    item.classList.remove('zero','partial','full');
     item.classList.add('pending');
     item.querySelectorAll('.opts button').forEach(b=>b.classList.remove('on','zero','full'));
   });
