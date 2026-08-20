@@ -100,6 +100,9 @@ header{
 .spinner{width:38px;height:38px;border:4px solid #E3E8F0;border-top-color:var(--orange);border-radius:50%;margin:0 auto 14px;animation:sp .8s linear infinite}
 @keyframes sp{to{transform:rotate(360deg)}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:2px}
+.chips button{font-family:inherit;font-size:14.5px;font-weight:600;color:var(--txt);border:1.5px solid var(--line);background:#fff;border-radius:20px;padding:10px 18px;min-height:44px;cursor:pointer;transition:all .12s}
+.chips button.on{background:var(--navy);border-color:var(--navy);color:#fff}
 </style>
 </head>
 <body>
@@ -129,6 +132,15 @@ header{
       <div class="f"><label>姓名 <span>*</span></label><input type="text" id="name" placeholder="請填寫真實姓名" autocomplete="off"></div>
       <div class="f"><label>單位 <span>*</span></label><input type="text" id="unit" placeholder="例：8B 病房" autocomplete="off"></div>
       <div class="f"><label>職稱（選填）</label><input type="text" id="title" placeholder="例：N2 護理師" autocomplete="off"></div>
+    </div>
+    <div style="padding:0 14px 16px">
+      <div class="f"><label>身分別 <span>*</span></label>
+        <div class="chips" id="roleChips">
+          <button type="button" data-v="醫師" onclick="pickRole('醫師')">醫師／PGY</button>
+          <button type="button" data-v="護理師" onclick="pickRole('護理師')">護理師</button>
+          <button type="button" data-v="其他" onclick="pickRole('其他')">其他</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -234,6 +246,13 @@ function update(){
     : `尚有 <b>${ALL.length-done}</b> 題未作答`;
 }
 
+
+let ROLE = '';
+function pickRole(r){
+  ROLE = r;
+  document.querySelectorAll('#roleChips button').forEach(function(b){ b.classList.toggle('on', b.dataset.v === r); });
+}
+
 /* ===================== 送出 ===================== */
 function showPanel(html){ document.getElementById('panel').innerHTML = html; document.getElementById('overlay').classList.add('show'); }
 function closePanel(){ document.getElementById('overlay').classList.remove('show'); }
@@ -268,6 +287,7 @@ async function submitQuiz(){
   if(!quizDate){ alert('請填寫測驗日期。'); return; }
   if(!name){ alert('請填寫姓名。'); document.getElementById('name').focus(); return; }
   if(!unit){ alert('請填寫單位。'); document.getElementById('unit').focus(); return; }
+  if(!ROLE){ alert('請選擇身分別。'); document.getElementById('roleChips').scrollIntoView({block:'center',behavior:'smooth'}); return; }
 
   const p = pending();
   if(p.length){
@@ -276,7 +296,7 @@ async function submitQuiz(){
     return;
   }
 
-  const payload = { formType:'quiz', stage:STAGE, quizDate, name, unit, title, answers };
+  const payload = { formType:'quiz', stage:STAGE, quizDate, name, unit, title, role:ROLE, answers };
   const btn = document.getElementById('submitBtn');
   btn.disabled = true;
   showPanel('<div class="spinner"></div><h3>正在送出</h3><p>請稍候，不要關閉視窗。</p>');
