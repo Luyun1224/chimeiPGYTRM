@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0B1A3A">
-<title>PGY TRM後測＋課程滿意度問卷</title>
+<title>後測＋課程滿意度問卷</title>
 <style>
 :root{
   --navy:#0B1A3A; --navy-2:#14275A; --orange:#F39220;
@@ -149,6 +149,15 @@ header{position:sticky;top:0;z-index:30;color:#fff;background:linear-gradient(13
         <div class="f"><label>姓名 <span>*</span></label><input type="text" id="name" placeholder="請填寫真實姓名，需與前測相同" autocomplete="off"></div>
         <div class="f"><label>單位 <span>*</span></label><input type="text" id="unit" placeholder="例：8B 病房" autocomplete="off"></div>
         <div class="f"><label>職稱（選填）</label><input type="text" id="title" placeholder="例：N2 護理師" autocomplete="off"></div>
+      </div>
+      <div style="padding:0 14px 16px">
+        <div class="f"><label>身分別 <span>*</span></label>
+          <div class="chips" id="roleChips" style="margin-top:2px">
+            <button type="button" data-v="醫師" onclick="pickRole('醫師')">醫師／PGY</button>
+            <button type="button" data-v="護理師" onclick="pickRole('護理師')">護理師</button>
+            <button type="button" data-v="其他" onclick="pickRole('其他')">其他</button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -431,6 +440,13 @@ function goStep(s){
   window.scrollTo({top:0, behavior:'smooth'});
 }
 
+
+let ROLE = '';
+function pickRole(r){
+  ROLE = r;
+  document.querySelectorAll('#roleChips button').forEach(function(b){ b.classList.toggle('on', b.dataset.v === r); });
+}
+
 /* ===================== 送出 ===================== */
 function showPanel(html){ document.getElementById('panel').innerHTML = html; document.getElementById('overlay').classList.add('show'); }
 function closePanel(){ document.getElementById('overlay').classList.remove('show'); }
@@ -463,6 +479,7 @@ function nextOrSubmit(){
     if(!quizDate){ alert('請填寫測驗日期。'); return; }
     if(!name){ alert('請填寫姓名。'); document.getElementById('name').focus(); return; }
     if(!unit){ alert('請填寫單位。'); document.getElementById('unit').focus(); return; }
+    if(!ROLE){ alert('請選擇身分別。'); document.getElementById('roleChips').scrollIntoView({block:'center',behavior:'smooth'}); return; }
     const p = quizPending();
     if(p.length){
       alert(`還有 ${p.length} 題未作答，請全部作答後再進入問卷。`);
@@ -490,6 +507,7 @@ async function doSubmit(){
     name: document.getElementById('name').value.trim(),
     unit: document.getElementById('unit').value.trim(),
     title: document.getElementById('title').value.trim(),
+    role: ROLE,
     answers: answers,
     survey: sv
   };
