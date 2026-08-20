@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0B1A3A">
+<title>氣管內管照護課程　前測</title>
+<style>
+:root{
+  --navy:#0B1A3A; --navy-2:#14275A; --orange:#F39220;
+  --bg:#EEF1F6; --card:#FFF; --line:#DCE2EC; --txt:#1D2433; --muted:#6B7688;
+  --shadow:0 1px 3px rgba(11,26,58,.08), 0 8px 24px rgba(11,26,58,.06);
+  --safe-b:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  font-family:"Microsoft JhengHei","微軟正黑體","PingFang TC","Noto Sans TC",system-ui,-apple-system,sans-serif;
+  background:var(--bg); color:var(--txt); font-size:16px; line-height:1.5;
+  padding-bottom:calc(96px + var(--safe-b));
+}
+.wrap{max-width:820px;margin:0 auto;padding:0 12px}
+
+header{
+  position:sticky;top:0;z-index:30;color:#fff;
+  background:linear-gradient(135deg,var(--navy) 0%,var(--navy-2) 100%);
+  box-shadow:0 2px 12px rgba(11,26,58,.25);padding-top:env(safe-area-inset-top,0px)
+}
+.hd{display:flex;align-items:center;gap:12px;padding:12px}
+.hd h1{font-size:18px;margin:0;font-weight:700;letter-spacing:.5px}
+.hd .sub{font-size:12px;opacity:.75;margin-top:2px}
+.chip{margin-left:auto;text-align:center;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);border-radius:12px;padding:6px 12px;min-width:88px}
+.chip .n{font-size:20px;font-weight:800;color:var(--orange);line-height:1.15}
+.chip .l{font-size:11px;opacity:.8}
+.bar{height:4px;background:rgba(255,255,255,.15)}
+.bar i{display:block;height:100%;background:var(--orange);width:0;transition:width .25s ease}
+
+.card{background:var(--card);border-radius:14px;box-shadow:var(--shadow);margin:14px 0;overflow:hidden}
+.ct{display:flex;align-items:center;gap:10px;padding:12px 14px;background:#F7F9FC;border-bottom:1px solid var(--line)}
+.ct .idx{background:var(--navy);color:#fff;font-size:12px;font-weight:700;border-radius:8px;padding:4px 9px}
+.ct h2{font-size:15px;margin:0;font-weight:700;color:var(--navy)}
+.ct .sub2{font-size:12px;color:var(--muted);font-weight:400;margin-top:1px}
+.ct .cnt{margin-left:auto;font-size:12px;color:var(--muted)}
+
+.grid{display:grid;grid-template-columns:1fr;gap:12px;padding:14px}
+@media(min-width:700px){.grid{grid-template-columns:1fr 1fr}}
+.f label{display:block;font-size:13px;font-weight:700;color:var(--navy-2);margin-bottom:6px}
+.f label span{color:#B4472E;font-weight:400}
+.f input{width:100%;font-family:inherit;font-size:16px;border:1px solid var(--line);border-radius:10px;padding:11px 12px;background:#fff}
+.f input:focus{outline:2px solid var(--orange);outline-offset:1px;border-color:var(--orange)}
+
+.q{position:relative;padding:14px 14px 14px 18px;border-bottom:1px solid #EEF1F6}
+.q:last-child{border-bottom:none}
+.q::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:#F0C583;transition:background .15s ease}
+.q.done::before{background:var(--navy-2)}
+.qt{font-size:15.5px;font-weight:700;line-height:1.6;color:#16203A}
+.qt .no{display:inline-block;background:#EDF1F8;color:var(--navy-2);font-size:12px;border-radius:5px;padding:2px 7px;margin-right:8px;vertical-align:2px}
+.opts{margin-top:10px;display:flex;flex-direction:column;gap:8px}
+.opts button{
+  display:flex;align-items:flex-start;gap:10px;width:100%;text-align:left;
+  font-family:inherit;font-size:15px;line-height:1.5;color:var(--txt);
+  background:#fff;border:1.5px solid var(--line);border-radius:10px;padding:12px 13px;
+  min-height:48px;cursor:pointer;transition:all .12s ease
+}
+.opts button:active{transform:scale(.99)}
+.opts button .k{
+  flex:0 0 26px;height:26px;line-height:24px;text-align:center;border-radius:50%;
+  border:1.5px solid var(--line);font-weight:800;font-size:13px;color:var(--muted);background:#fff
+}
+.opts button.on{border-color:var(--navy);background:#F4F7FD}
+.opts button.on .k{background:var(--navy);border-color:var(--navy);color:#fff}
+.opts button:focus-visible{outline:2px solid var(--orange);outline-offset:2px}
+.opts.tf{flex-direction:row;gap:10px}
+.opts.tf button{justify-content:center;align-items:center;font-size:20px;font-weight:800;padding:14px}
+.opts.tf button .k{display:none}
+
+.footbar{
+  position:fixed;left:0;right:0;bottom:0;z-index:40;background:rgba(255,255,255,.97);
+  border-top:1px solid var(--line);box-shadow:0 -4px 20px rgba(11,26,58,.10);
+  padding:10px 12px calc(10px + var(--safe-b));backdrop-filter:blur(8px)
+}
+.footin{max-width:820px;margin:0 auto;display:flex;align-items:center;gap:12px}
+.st .n{font-size:24px;font-weight:800;color:var(--navy);line-height:1.1}
+.st .n small{font-size:14px;color:var(--muted);font-weight:600}
+.st .l{font-size:11.5px;color:var(--muted)}
+.st .l b{color:#B4472E}
+#submitBtn{
+  margin-left:auto;font-family:inherit;font-size:16px;font-weight:800;color:#fff;background:var(--orange);
+  border:none;border-radius:12px;padding:14px 26px;min-height:50px;cursor:pointer;box-shadow:0 4px 12px rgba(243,146,32,.35)
+}
+#submitBtn:disabled{background:#B9C2D0;box-shadow:none}
+
+.overlay{position:fixed;inset:0;z-index:60;background:rgba(11,26,58,.55);display:none;align-items:center;justify-content:center;padding:20px}
+.overlay.show{display:flex}
+.panel{background:#fff;border-radius:16px;max-width:420px;width:100%;padding:26px 22px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.panel h3{margin:0 0 6px;font-size:20px;color:var(--navy)}
+.panel p{color:var(--muted);font-size:14px;margin:8px 0}
+.panel .tick{font-size:46px;color:#0E7C5A;line-height:1}
+.panel button{width:100%;font-family:inherit;font-size:16px;font-weight:700;padding:14px;border-radius:12px;border:none;background:var(--navy);color:#fff;cursor:pointer;margin-top:10px}
+.spinner{width:38px;height:38px;border:4px solid #E3E8F0;border-top-color:var(--orange);border-radius:50%;margin:0 auto 14px;animation:sp .8s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hd">
+    <div>
+      <h1>氣管內管照護課程　前測</h1>
+      <div class="sub">共 10 題　｜　選擇題 5 題・是非題 5 題</div>
+    </div>
+    <div class="chip"><div class="n" id="hdDone">0</div><div class="l">已作答 / 10</div></div>
+  </div>
+  <div class="bar"><i id="hdBar"></i></div>
+</header>
+
+<div class="wrap">
+
+  <div id="previewWarn" style="display:none;margin:14px 0;background:#FFF3E0;border:1px solid #F3C88A;border-left:4px solid var(--orange);border-radius:10px;padding:12px 14px;font-size:13.5px;color:#8A5A12;line-height:1.6">
+    <b>目前在預覽視窗中，送出會被擋下。</b><br>
+    請將此檔案下載後用瀏覽器開啟，或上傳到 GitHub Pages 再實際測試送出。
+  </div>
+
+  <div class="card">
+    <div class="ct"><span class="idx">基本</span><div><h2>基本資料</h2><div class="sub2">測驗日期預設為今天</div></div></div>
+    <div class="grid">
+      <div class="f"><label>測驗日期 <span>*</span></label><input type="date" id="quizDate"></div>
+      <div class="f"><label>姓名 <span>*</span></label><input type="text" id="name" placeholder="請填寫真實姓名" autocomplete="off"></div>
+      <div class="f"><label>單位 <span>*</span></label><input type="text" id="unit" placeholder="例：8B 病房" autocomplete="off"></div>
+      <div class="f"><label>職稱（選填）</label><input type="text" id="title" placeholder="例：N2 護理師" autocomplete="off"></div>
+    </div>
+  </div>
+
+  <div style="background:#EDF1F8;border-radius:10px;padding:11px 14px;font-size:13px;color:var(--navy-2);line-height:1.6;margin:14px 0">
+    本次為課前測驗，用於了解學員先備知識，<b>作答結果不會公布個人分數，也不列入考核</b>。請依自己的判斷作答，10 題全部作答後即可送出。
+  </div>
+
+  <div id="quiz"></div>
+</div>
+
+<div class="footbar">
+  <div class="footin">
+    <div class="st">
+      <div class="n"><span id="ftDone">0</span><small> / 10 題</small></div>
+      <div class="l" id="ftMsg">尚有 <b>10</b> 題未作答</div>
+    </div>
+    <button id="submitBtn" type="button" onclick="submitQuiz()">送出前測</button>
+  </div>
+</div>
+
+<div class="overlay" id="overlay"><div class="panel" id="panel"></div></div>
+
+<script>
+/* ===================== 設定 ===================== */
+const GAS_URL = "https://script.google.com/macros/s/AKfycbyLrYwiDKiz7Ti1fYjZzqa3sj2PnnpDdrsVtw7rEGEMthvUo-DKdxRVx8nD1GEOKIKI/exec";
+const STAGE = "前測";   // 後測版本只需把這行改成「後測」
+
+/* ===================== 題目（不含答案，答案在後端 GAS） ===================== */
+const GROUPS = [
+{ idx:"一", title:"選擇題", sub:"共 5 題，單選", items:[
+  {id:"M1", text:"氣管內管或氣切管的氣囊（cuff）必須充氣才能防止肺內氣體外洩，但氣囊內的壓力又不能太高，以免妨礙氣管黏膜的血液循環。合理的氣囊內壓應是：",
+   options:{A:"15-40 cmH2O", B:"15-25 cmH2O", C:"25-30 cmH2O", D:"30-35 cmH2O"}},
+  {id:"M2", text:"氣管內管滑脫徵象，包括：1.血氧不穩、2.病人躁動不安、3.呼吸器聲響警示、4.CUFF LEAK、5.病人熟睡、6.病人嘴唇發紺⋯⋯下列何者為是？",
+   options:{A:"1＋2＋3＋5", B:"1＋2＋3＋4＋6", C:"2＋5＋3＋6", D:"以上皆是"}},
+  {id:"M3", text:"關於氣管內管照護過程緊急求援狀況，下列何者為非？",
+   options:{A:"病人突然躁動，無法獨自處理時應求援", B:"病人突然用力咬管，無法經口頭阻止時應求援", C:"呼吸器不斷鳴響，只要按壓靜音，不需要特別求援", D:"病人意識改變，突然大量吐血時應求援"}},
+  {id:"M4", text:"針對交班之 ISBAR 內容，為了提升醫療照護人員間溝通的有效性，交班時除須說明病人現況（S, Situation）外，還須包含 IBAR，下列敘述何者錯誤？",
+   options:{A:"Information：病人基本資料，含旅遊史、接觸史及職業", B:"Background：病人重要病史、目前用藥及治療情形", C:"Assessment：病人最近一次生命徵象及檢驗檢查數據", D:"Recommendation：病人後續處理措施及可能發生危急狀況的預防"}},
+  {id:"M5", text:"懷疑氣管內管移位時，可使用 DOPE 口訣鑑別原因，請問下列何者說明為非？",
+   options:{A:"移位（Displacement）", B:"阻塞（Obstruction）", C:"氣胸（Pneumothorax）", D:"膿胸（Empyema）"}}
+]},
+{ idx:"二", title:"是非題", sub:"共 5 題，○ 為對、✗ 為錯", items:[
+  {id:"T1", tf:true, text:"臨床進行氣管內管護理後，醫囑有開立需要確認氣囊壓力值再執行即可。"},
+  {id:"T2", tf:true, text:"所謂 ISBAR 是 Introduction（自我／病人介紹）、Situation（病人病況）、Background（病人相關背景資料如病史與臨床資料等）、Assessment（評估）和 Responses（反應）。"},
+  {id:"T3", tf:true, text:"加護病房執行各項照護工作時，同為聯防主護可以同時間替自己的病人執行氣管內管護理，不需要進行聯防工作。"},
+  {id:"T4", tf:true, text:"確定氣管內管移位時，應立即通報單位主管或醫師，同步聯繫呼吸治療師協助處理。"},
+  {id:"T5", tf:true, text:"氣管氣囊破裂（喉頭會隨呼吸發出聲音），不需要特別處理。"}
+]}
+];
+
+const ALL = GROUPS.flatMap(g => g.items);
+const answers = {};
+
+/* ===================== 畫面 ===================== */
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+function render(){
+  let n = 0;
+  document.getElementById('quiz').innerHTML = GROUPS.map(g=>{
+    const qs = g.items.map(it=>{
+      n++;
+      let opts;
+      if(it.tf){
+        opts = `<div class="opts tf">
+          <button type="button" style="flex:1" data-id="${it.id}" data-v="O" onclick="pick('${it.id}','O')">○</button>
+          <button type="button" style="flex:1" data-id="${it.id}" data-v="X" onclick="pick('${it.id}','X')">✗</button>
+        </div>`;
+      }else{
+        opts = `<div class="opts">` + Object.keys(it.options).map(k=>
+          `<button type="button" data-id="${it.id}" data-v="${k}" onclick="pick('${it.id}','${k}')">
+             <span class="k">${k}</span><span>${esc(it.options[k])}</span>
+           </button>`).join('') + `</div>`;
+      }
+      return `<div class="q" id="q-${it.id}">
+        <div class="qt"><span class="no">第 ${n} 題</span>${esc(it.text)}</div>
+        ${opts}
+      </div>`;
+    }).join('');
+    return `<div class="card">
+      <div class="ct"><span class="idx">${g.idx}</span><div><h2>${g.title}</h2><div class="sub2">${g.sub}</div></div><span class="cnt">${g.items.length} 題</span></div>
+      ${qs}
+    </div>`;
+  }).join('');
+}
+
+function pick(id, v){
+  answers[id] = v;
+  const q = document.getElementById('q-'+id);
+  q.classList.add('done');
+  q.querySelectorAll('.opts button').forEach(b=> b.classList.toggle('on', b.dataset.v === v));
+  update();
+}
+
+function pending(){ return ALL.filter(it => !answers[it.id]); }
+
+function update(){
+  const done = ALL.length - pending().length;
+  document.getElementById('hdDone').textContent = done;
+  document.getElementById('ftDone').textContent = done;
+  document.getElementById('hdBar').style.width = (done/ALL.length*100)+'%';
+  document.getElementById('ftMsg').innerHTML = done === ALL.length
+    ? '全部作答完成，可以送出'
+    : `尚有 <b>${ALL.length-done}</b> 題未作答`;
+}
+
+/* ===================== 送出 ===================== */
+function showPanel(html){ document.getElementById('panel').innerHTML = html; document.getElementById('overlay').classList.add('show'); }
+function closePanel(){ document.getElementById('overlay').classList.remove('show'); }
+
+const IS_EMBEDDED = (function(){ try{ return window.self !== window.top; }catch(e){ return true; } })();
+
+function submitViaIframe(payload){
+  return new Promise(function(resolve, reject){
+    const name = 'gasfr_' + Date.now();
+    const ifr = document.createElement('iframe');
+    ifr.name = name; ifr.style.display = 'none';
+    document.body.appendChild(ifr);
+    const form = document.createElement('form');
+    form.action = GAS_URL; form.method = 'POST'; form.target = name; form.style.display = 'none';
+    const input = document.createElement('input');
+    input.type = 'hidden'; input.name = 'payload'; input.value = JSON.stringify(payload);
+    form.appendChild(input); document.body.appendChild(form);
+    let submitted = false, finished = false;
+    function cleanup(){ setTimeout(function(){ form.remove(); ifr.remove(); }, 200); }
+    ifr.onload = function(){ if(!submitted || finished) return; finished = true; cleanup(); resolve(); };
+    submitted = true; form.submit();
+    setTimeout(function(){ if(finished) return; finished = true; cleanup(); reject(new Error('送出逾時')); }, 20000);
+  });
+}
+
+async function submitQuiz(){
+  const quizDate = document.getElementById('quizDate').value;
+  const name = document.getElementById('name').value.trim();
+  const unit = document.getElementById('unit').value.trim();
+  const title = document.getElementById('title').value.trim();
+
+  if(!quizDate){ alert('請填寫測驗日期。'); return; }
+  if(!name){ alert('請填寫姓名。'); document.getElementById('name').focus(); return; }
+  if(!unit){ alert('請填寫單位。'); document.getElementById('unit').focus(); return; }
+
+  const p = pending();
+  if(p.length){
+    alert(`還有 ${p.length} 題未作答，請全部作答後再送出。`);
+    document.getElementById('q-'+p[0].id).scrollIntoView({block:'center', behavior:'smooth'});
+    return;
+  }
+
+  const payload = { formType:'quiz', stage:STAGE, quizDate, name, unit, title, answers };
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  showPanel('<div class="spinner"></div><h3>正在送出</h3><p>請稍候，不要關閉視窗。</p>');
+
+  let lastErr = '';
+  try{
+    const res = await fetch(GAS_URL, { method:'POST', body: JSON.stringify(payload), redirect:'follow' });
+    const out = await res.json();
+    if(out.ok){ done(); return; }
+    throw new Error(out.message || '伺服器回傳失敗');
+  }catch(err){ lastErr = err.message || String(err); }
+
+  try{ await submitViaIframe(payload); done(); return; }
+  catch(e2){ lastErr = lastErr || (e2.message || String(e2)); }
+
+  btn.disabled = false;
+  const hint = IS_EMBEDDED
+    ? '這個頁面正在預覽視窗中執行，預覽環境不允許連線到 Google 伺服器。請下載檔案後用瀏覽器開啟再送出。'
+    : '請確認網路連線，並確認 GAS 已重新部署新版本、存取權設定為「任何人」。';
+  showPanel(`<h3 style="color:#B4472E">送出失敗</h3><p>${hint}</p>
+    <p style="font-size:12px;color:#98A0AE">${esc(lastErr)}</p>
+    <button type="button" onclick="closePanel()">返回檢查答案</button>`);
+}
+
+function done(){
+  showPanel(`<div class="tick">✓</div><h3>前測已完成</h3>
+    <p>感謝作答，答案已送出。<br>本次測驗不公布個人分數，請安心參加課程。</p>
+    <button type="button" onclick="location.reload()">關閉</button>`);
+  document.getElementById('submitBtn').disabled = true;
+}
+
+/* ===================== 初始化 ===================== */
+(function init(){
+  const d = new Date();
+  document.getElementById('quizDate').value =
+    d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  if(IS_EMBEDDED) document.getElementById('previewWarn').style.display = 'block';
+  render();
+  update();
+})();
+</script>
+</body>
+</html>
