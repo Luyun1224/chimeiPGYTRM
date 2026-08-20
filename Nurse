@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0B1A3A">
+<title>病房組 CPCR 技術評核表</title>
+<style>
+:root{
+  --navy:#0B1A3A;
+  --navy-2:#14275A;
+  --orange:#F39220;
+  --green:#0E7C5A;
+  --red:#B4472E;
+  --bg:#EEF1F6;
+  --card:#FFFFFF;
+  --line:#DCE2EC;
+  --txt:#1D2433;
+  --muted:#6B7688;
+  --shadow:0 1px 3px rgba(11,26,58,.08), 0 8px 24px rgba(11,26,58,.06);
+  --safe-b:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  font-family:"Microsoft JhengHei","微軟正黑體","PingFang TC","Noto Sans TC",system-ui,-apple-system,sans-serif;
+  background:var(--bg); color:var(--txt); font-size:16px; line-height:1.5;
+  padding-bottom:calc(96px + var(--safe-b));
+}
+.wrap{max-width:900px;margin:0 auto;padding:0 12px}
+
+/* ---------- Header ---------- */
+header{
+  position:sticky;top:0;z-index:30;
+  background:linear-gradient(135deg,var(--navy) 0%,var(--navy-2) 100%);
+  color:#fff;box-shadow:0 2px 12px rgba(11,26,58,.25);
+  padding-top:env(safe-area-inset-top,0px);
+}
+.hd{display:flex;align-items:center;gap:12px;padding:12px}
+.hd h1{font-size:18px;margin:0;font-weight:700;letter-spacing:.5px}
+.hd .sub{font-size:12px;opacity:.75;margin-top:2px}
+.scorechip{
+  margin-left:auto;text-align:center;background:rgba(255,255,255,.12);
+  border:1px solid rgba(255,255,255,.25);border-radius:12px;padding:6px 12px;min-width:92px
+}
+.scorechip .n{font-size:22px;font-weight:800;color:var(--orange);line-height:1.1}
+.scorechip .l{font-size:11px;opacity:.8}
+.bar{height:4px;background:rgba(255,255,255,.15)}
+.bar i{display:block;height:100%;background:var(--orange);width:0;transition:width .25s ease}
+
+/* ---------- Cards ---------- */
+.card{background:var(--card);border-radius:14px;box-shadow:var(--shadow);margin:14px 0;overflow:hidden}
+.card > .ct{
+  display:flex;align-items:center;gap:10px;padding:12px 14px;
+  background:#F7F9FC;border-bottom:1px solid var(--line)
+}
+.ct .idx{
+  flex:0 0 auto;background:var(--navy);color:#fff;font-size:12px;font-weight:700;
+  border-radius:8px;padding:4px 8px;min-width:30px;text-align:center
+}
+.ct h2{font-size:15px;margin:0;font-weight:700;color:var(--navy)}
+.ct .sub2{font-size:12px;color:var(--muted);font-weight:400;margin-top:1px}
+.ct .sec-score{margin-left:auto;font-size:12px;color:var(--muted);white-space:nowrap;text-align:right}
+.ct .sec-score b{color:var(--navy);font-size:15px}
+.ct .full{
+  margin-left:8px;border:1px solid var(--line);background:#fff;color:var(--navy-2);
+  border-radius:8px;padding:6px 9px;font-size:12px;cursor:pointer;font-family:inherit;white-space:nowrap
+}
+.ct .full:active{background:#EDF1F8}
+
+/* ---------- Basic info ---------- */
+.grid{display:grid;grid-template-columns:1fr;gap:12px;padding:14px}
+@media(min-width:700px){.grid{grid-template-columns:1fr 1fr}}
+.f label{display:block;font-size:13px;font-weight:700;color:var(--navy-2);margin-bottom:6px}
+.f label span{color:var(--red);font-weight:400}
+.f input,.f textarea,.f select{
+  width:100%;font-family:inherit;font-size:16px;color:var(--txt);
+  border:1px solid var(--line);border-radius:10px;padding:11px 12px;background:#fff
+}
+.f input:focus,.f textarea:focus,.f select:focus{outline:2px solid var(--orange);outline-offset:1px;border-color:var(--orange)}
+.f textarea{min-height:96px;resize:vertical}
+
+/* ---------- Items ---------- */
+.item{padding:12px 14px;border-bottom:1px solid #F0F3F8}
+.item:last-child{border-bottom:none}
+.item.pending{background:#FFFBF3}
+.item.pending::before{content:"";position:absolute}
+.itop{display:flex;gap:10px;align-items:flex-start}
+.code{
+  flex:0 0 auto;font-size:11px;font-weight:700;color:var(--navy-2);background:#EDF1F8;
+  border-radius:6px;padding:3px 6px;margin-top:2px;letter-spacing:.3px
+}
+.itxt{flex:1 1 auto;font-size:14.5px;line-height:1.55}
+.max{flex:0 0 auto;font-size:11px;color:var(--muted);background:#F2F4F8;border-radius:6px;padding:3px 7px;margin-top:2px;white-space:nowrap}
+.note{
+  display:inline-block;margin-top:6px;font-size:12px;color:#8A5A12;background:#FFF3E0;
+  border-left:3px solid var(--orange);border-radius:0 6px 6px 0;padding:5px 8px;line-height:1.45
+}
+.opts{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.opts button{
+  flex:1 1 0;min-width:52px;min-height:44px;font-family:inherit;font-size:15px;font-weight:700;
+  border:1.5px solid var(--line);background:#fff;color:var(--muted);border-radius:10px;cursor:pointer;
+  transition:all .12s ease
+}
+.opts button:active{transform:scale(.97)}
+.opts button.on{background:var(--navy);border-color:var(--navy);color:#fff}
+.opts button.on.zero{background:var(--red);border-color:var(--red)}
+.opts button.on.full{background:var(--green);border-color:var(--green)}
+.opts button:focus-visible{outline:2px solid var(--orange);outline-offset:2px}
+
+/* ---------- Toolbar ---------- */
+.tools{display:flex;gap:8px;padding:0 2px 2px;flex-wrap:wrap}
+.tools button{
+  flex:1 1 auto;font-family:inherit;font-size:13.5px;font-weight:700;padding:11px 10px;border-radius:10px;
+  border:1px solid var(--line);background:#fff;color:var(--navy-2);cursor:pointer;box-shadow:var(--shadow)
+}
+.tools button.warn{color:var(--red)}
+
+/* ---------- Footer bar ---------- */
+.footbar{
+  position:fixed;left:0;right:0;bottom:0;z-index:40;background:rgba(255,255,255,.97);
+  border-top:1px solid var(--line);box-shadow:0 -4px 20px rgba(11,26,58,.10);
+  padding:10px 12px calc(10px + var(--safe-b));backdrop-filter:blur(8px)
+}
+.footin{max-width:900px;margin:0 auto;display:flex;align-items:center;gap:12px}
+.total{line-height:1.15}
+.total .n{font-size:26px;font-weight:800;color:var(--navy)}
+.total .n small{font-size:14px;color:var(--muted);font-weight:600}
+.total .l{font-size:11.5px;color:var(--muted)}
+.total .warnpend{color:var(--red);font-weight:700}
+#submitBtn{
+  margin-left:auto;font-family:inherit;font-size:16px;font-weight:800;color:#fff;background:var(--orange);
+  border:none;border-radius:12px;padding:14px 26px;min-height:50px;cursor:pointer;
+  box-shadow:0 4px 12px rgba(243,146,32,.35)
+}
+#submitBtn:disabled{background:#B9C2D0;box-shadow:none}
+#submitBtn:active{transform:scale(.98)}
+
+/* ---------- Result ---------- */
+.overlay{
+  position:fixed;inset:0;z-index:60;background:rgba(11,26,58,.55);display:none;
+  align-items:center;justify-content:center;padding:20px
+}
+.overlay.show{display:flex}
+.panel{background:#fff;border-radius:16px;max-width:420px;width:100%;padding:26px 22px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.panel h3{margin:0 0 6px;font-size:20px;color:var(--navy)}
+.panel .big{font-size:42px;font-weight:800;color:var(--green);margin:10px 0 2px}
+.panel p{color:var(--muted);font-size:14px;margin:6px 0}
+.panel .serial{font-family:ui-monospace,Menlo,monospace;font-size:15px;color:var(--navy-2);background:#EDF1F8;border-radius:8px;padding:8px;margin:12px 0}
+.panel button{
+  width:100%;font-family:inherit;font-size:16px;font-weight:700;padding:14px;border-radius:12px;
+  border:none;background:var(--navy);color:#fff;cursor:pointer;margin-top:8px
+}
+.panel button.ghost{background:#fff;color:var(--navy);border:1px solid var(--line)}
+.spinner{width:38px;height:38px;border:4px solid #E3E8F0;border-top-color:var(--orange);border-radius:50%;margin:0 auto 14px;animation:sp .8s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.legend{font-size:12px;color:var(--muted);padding:10px 14px;background:#F7F9FC;border-bottom:1px solid var(--line)}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hd">
+    <div>
+      <h1>病房組 CPCR 技術評核表</h1>
+      <div class="sub">滿分 100 分 ｜ 104.11 修訂 ・ 108.08 修訂</div>
+    </div>
+    <div class="scorechip">
+      <div class="n" id="hdScore">0</div>
+      <div class="l">目前得分</div>
+    </div>
+  </div>
+  <div class="bar"><i id="hdBar"></i></div>
+</header>
+
+<div class="wrap">
+
+  <div id="previewWarn" style="display:none;margin:14px 0;background:#FFF3E0;border:1px solid #F3C88A;border-left:4px solid var(--orange);border-radius:10px;padding:12px 14px;font-size:13.5px;color:#8A5A12;line-height:1.6">
+    <b>目前在預覽視窗中，送出會被擋下。</b><br>
+    預覽環境不允許連線到 Google 伺服器。請把這個 HTML 檔下載後用瀏覽器開啟，或上傳到 GitHub Pages／院內空間，即可正常送出。填寫與計分功能在預覽中都可以照常測試。
+  </div>
+
+  <!-- 基本資料 -->
+  <div class="card">
+    <div class="ct"><span class="idx">基本</span><div><h2>基本資料</h2><div class="sub2">評核日期預設為今天</div></div></div>
+    <div class="grid">
+      <div class="f"><label>評核日期 <span>*</span></label><input type="date" id="evalDate"></div>
+      <div class="f"><label>受評單位 <span>*</span></label><input type="text" id="unit" placeholder="例：8B 病房" autocomplete="off"></div>
+      <div class="f"><label>評核教師 <span>*</span></label><input type="text" id="teacher" placeholder="例：王淑慎" autocomplete="off"></div>
+    </div>
+  </div>
+
+  <!-- 快速工具 -->
+  <div class="tools">
+    <button type="button" onclick="fillAll()">全部給滿分</button>
+    <button type="button" onclick="jumpPending()">跳到未評分</button>
+    <button type="button" class="warn" onclick="clearAll()">全部清除</button>
+  </div>
+
+  <div id="sections"></div>
+
+  <!-- 質性回饋 -->
+  <div class="card">
+    <div class="ct"><span class="idx">回饋</span><div><h2>質性回饋</h2><div class="sub2">選填，會一併寫入 Google 試算表與 PDF</div></div></div>
+    <div class="grid">
+      <div class="f"><label>表現良好之處</label><textarea id="strength" placeholder="例：胸部按壓深度與速率穩定，團隊 call-out 清楚。"></textarea></div>
+      <div class="f"><label>建議改善事項</label><textarea id="suggest" placeholder="例：更換按壓人員時中斷時間偏長，建議事先預告倒數。"></textarea></div>
+    </div>
+  </div>
+
+  <div style="height:8px"></div>
+</div>
+
+<div class="footbar">
+  <div class="footin">
+    <div class="total">
+      <div class="n"><span id="ftScore">0</span><small> / 100 分</small></div>
+      <div class="l" id="ftPending">尚有 0 項未評分</div>
+    </div>
+    <button id="submitBtn" type="button" onclick="submitForm()">送出評核</button>
+  </div>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="panel" id="panel"></div>
+</div>
+
+<script>
+/* ===================== 設定 ===================== */
+const GAS_URL = "https://script.google.com/macros/s/AKfycbyLrYwiDKiz7Ti1fYjZzqa3sj2PnnpDdrsVtw7rEGEMthvUo-DKdxRVx8nD1GEOKIKI/exec";
+
+/* ===================== 評核項目 ===================== */
+const SECTIONS = [
+{ idx:"一", title:"評估病人意識及呼叫支援", sub:"負責護理師", items:[
+  {id:"A1", code:"1-1", text:"以聲音呼喚或肢體碰觸病人，確定意識狀態", max:2}
+]},
+{ idx:"二", title:"評估病人呼吸脈搏", sub:"負責護理師", items:[
+  {id:"B1", code:"2-1", text:"觀察病人是否呼吸停止或呼吸異常", max:1},
+  {id:"B2", code:"2-2", text:"以 2 根指頭觸摸病人頸動脈確定是否有脈動（10 秒以內完成）", max:3},
+  {id:"B3", code:"2-3", text:"檢查 EKG 導線是否脫落並評估 EKG 波形", max:1},
+  {id:"B4", code:"2-4", text:"發現沒有反應立即大聲呼叫護理站支援（電話、電鈴、家屬協助）", max:3}
+]},
+{ idx:"三～六", title:"初期團隊反應", sub:"", items:[
+  {id:"C1", code:"3", text:"執行體外心臟按摩：無呼吸無脈搏者，立即執行 Cardiac Massage（需在 1 分鐘內執行）", max:2},
+  {id:"C2", code:"4", text:"護理師至少達三人（含主護），護理站支援人員同時推入急救車及電擊車", max:2},
+  {id:"C3", code:"5", text:"支援團隊到現場需在 3 分鐘內", max:2},
+  {id:"C4", code:"6", text:"組長分配工作完成、適時發現異常，即時糾正指導", max:2}
+]},
+{ idx:"七", title:"急救分工執行（7-1～7-4）", sub:"流動護理師／組長／Air Way 護理師", items:[
+  {id:"D1", code:"7-1", text:"流動護理師通知醫師或 Call 999", max:1},
+  {id:"D2", code:"7-2a", text:"組長拉上隔簾，維護病人隱私（佈置環境）", max:1},
+  {id:"D3", code:"7-2b", text:"組長每 2 分鐘或 CPCR 5 個循環須測量生命徵象（脈搏和心律）【必要時可由小組長指派】", max:2, note:"CPCR 前、後須有完整 GCS、Pupil"},
+  {id:"D4", code:"7-3a", text:"Air Way 護理師：取下床頭架、取走枕頭、搖平床頭，使病人平躺", max:1},
+  {id:"D5", code:"7-3b", text:"壓額抬頦（C-spine 病人用提頦法）", max:1},
+  {id:"D6", code:"7-3c", text:"接上 Ambu Mask，正確壓額抬頦並有胸部起伏／於急救車到達 1 分鐘內正確接上 Ambu Mask", max:3},
+  {id:"D7", code:"7-4a", text:"流動護理師：一次取得氧氣配備並迅速接上氧氣", max:2},
+  {id:"D8", code:"7-4b", text:"調整氧氣流量 15 L/min 以上", max:1},
+  {id:"D9", code:"7-4c", text:"一次取得 Suction 用物", max:1},
+  {id:"D10", code:"7-4d", text:"裝妥 Suction 並檢查功能", max:1},
+  {id:"D11", code:"7-4e", text:"Set IV Line", max:1, note:"若需使用 LMA 須檢視 cuff 有無破損，於 LMA 背面前端塗上 Jelly 後正確放入並接上 Ambu；Set IV Line 可依單位特性指派一人執行"}
+]},
+{ idx:"七", title:"EKG 監測與心外按摩（7-5）", sub:"組長或流動護理師", items:[
+  {id:"E1", code:"7-5a", text:"可先放置 paddle 於胸前觀察 wave 之變化，負責貼妥 EKG Lead 並位置正確", max:2},
+  {id:"E2", code:"7-5b", text:"選擇第二導程之 EKG 觀察", max:1},
+  {id:"E3", code:"7-5c", text:"記錄一段 EKG Wave，黏貼護理紀錄", max:1},
+  {id:"E4", code:"7-5d", text:"EKG 螢幕需面向心外按摩者", max:1},
+  {id:"E5", code:"7-5e", text:"放置急救板", max:1},
+  {id:"E6", code:"7-5f", text:"Stand still 立即施行 Cardiac Massage", max:2},
+  {id:"E7", code:"7-5g(1)", text:"Compression 及 Ventilation 之配合比率為 30:2／Cardiac Massage 次數 100-120 次/min", max:3},
+  {id:"E8", code:"7-5g(2)", text:"Cardiac Massage 者讀出次數", max:2},
+  {id:"E9", code:"7-5g(3)", text:"Cardiac Massage 位置正確", max:2},
+  {id:"E10", code:"7-5h", text:"每 2 分鐘更換胸部按壓人員（中斷小於 10 秒）", max:3}
+]},
+{ idx:"醫師到達", title:"交班", sub:"", items:[
+  {id:"F1", code:"交班", text:"發現者向支援團隊進行交班（以 ISBAR 方式）", max:2}
+]},
+{ idx:"八", title:"協助 On Endotracheal Tube", sub:"組長或流動人員", items:[
+  {id:"G1", code:"8-1", text:"一次取得 On Endotracheal tube 用物", max:2},
+  {id:"G2", code:"8-2", text:"確定 Endotracheal tube 無漏氣後並予消毒", max:1},
+  {id:"G3", code:"8-3", text:"備 Oral Endotracheal tube 時通條超過 Endotracheal tube 尖端 2-3 公分／依醫師指示", max:1},
+  {id:"G4", code:"8-4", text:"備 Endotracheal tube（ILMA）時須塗上 Jelly（1 分）；備物時間不超過 1 分鐘（1 分）", max:2},
+  {id:"G5", code:"8-5", text:"放 Endotracheal tube 至 LMA 內，或將 LMA 移除協助 On Endotracheal tube", max:1},
+  {id:"G6", code:"8-6", text:"經醫師評估為困難性插管，可尋求【緊急醫療團隊】支援（或依醫師指示尋求其他）", max:2, note:"事後抽問尋求支援方式"},
+  {id:"G7", code:"8-7", text:"插管後協助打 Cuff、30 秒內接上 Ambu Bagging（1 分）；讓醫師聽診並接上 ETCO2、確認位置正確、固定 Endotracheal tube 及覆誦號碼與深度（2 分）", max:3},
+  {id:"G8", code:"8-8", text:"負責護理師記錄 Endotracheal tube 號碼、固定公分數、ETCO2 數值", max:1},
+  {id:"G9", code:"8-9", text:"男女病人插入 Oral 及 Nasal Endotracheal tube 之深度正確", max:1, note:"抽問 oral airway 號碼選擇、放置方法，及男女病人 Endo 號碼選擇與插入深度"},
+  {id:"G10", code:"8-10", text:"流動護理師準備隨時 Suction", max:1}
+]},
+{ idx:"九", title:"協助醫師電擊操作", sub:"", items:[
+  {id:"H1", code:"9-1", text:"均勻塗上 Jelly 於電擊板上", max:1},
+  {id:"H2", code:"9-2", text:"依醫囑正確選擇能量並操作充電；意識尚清醒者電擊前是否適時予鎮靜劑使用", max:1, note:"會操作 AED"},
+  {id:"H3", code:"9-3", text:"體外之 pacemaker 電擊時暫時關閉；體內之 pacemaker 電擊時須避開", max:2, note:"此部分事後抽問"},
+  {id:"H4", code:"9-4", text:"VT、VF 病人電擊之劑量；何種 Arrhythmia 須同步電擊", max:2, note:"此部分事後抽問"}
+]},
+{ idx:"十～十六", title:"電擊執行與給藥紀錄", sub:"", items:[
+  {id:"I1", code:"10", text:"放電時避開 EKG 導線，電擊時由組長或流動人員喊口令提醒全員避開，但 Ambu Bagging 可持續執行", max:2},
+  {id:"I2", code:"11", text:"電擊前後需記錄一段 EKG", max:2},
+  {id:"I3", code:"12", text:"電擊後立即執行 Cardiac Massage", max:2},
+  {id:"I4", code:"13", text:"負責護理師接受口頭醫囑，並覆誦一次藥名、劑量、途徑（於 1 分鐘內執行給藥，給藥過程不中斷）", max:2},
+  {id:"I5", code:"14", text:"自 IV 給藥後以 IV 溶液沖洗；自 Endo 給藥以 NS 稀釋成 10ml，給藥後 Ambu Bagging", max:2},
+  {id:"I6", code:"15", text:"負責護理師隨時記錄急救過程：Vital Sign 及給藥時間、藥名、劑量、途徑、電擊劑量（可暫用便條紙或直接記錄於電腦護囑 CPCR 系統），CPCR 前後須完整", max:3},
+  {id:"I7", code:"16", text:"由流動護理師外送檢體（白班由護佐外送）", max:1}
+]},
+{ idx:"十七～十八", title:"急救後送作業", sub:"組長或流動人員", items:[
+  {id:"J1", code:"17", text:"醫師向家屬解釋病情", max:2},
+  {id:"J2", code:"18-1", text:"急救後送加護病房、懷恩堂或辦理自動出院，與對方單位聯絡、PRN 進行", max:1},
+  {id:"J3", code:"18-2", text:"輸送時備物完善（氧氣鋼瓶容量足夠）並有人員陪同", max:2, note:"抽問所需氧氣容量正確"},
+  {id:"J4", code:"18-3", text:"電梯管控適當，必要時使用【緊急電梯卡】", max:1}
+]},
+{ idx:"十九", title:"急救團隊運作順暢", sub:"", items:[
+  {id:"K1", code:"19-1", text:"角色分配合宜，CBA 皆有明確角色人員", max:2},
+  {id:"K2", code:"19-2", text:"分工及配合流程是否順暢", max:2},
+  {id:"K3", code:"19-3", text:"急救物品功能完整", max:2}
+]}
+];
+
+const ALL = SECTIONS.flatMap(s => s.items);
+const MAX_TOTAL = ALL.reduce((a,b)=>a+b.max,0);
+const scores = {};   // id -> number | undefined
+
+/* ===================== 畫面 ===================== */
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+function render(){
+  const box = document.getElementById('sections');
+  box.innerHTML = SECTIONS.map((sec,si)=>{
+    const secMax = sec.items.reduce((a,b)=>a+b.max,0);
+    const items = sec.items.map(it=>{
+      const opts = [];
+      for(let v=0; v<=it.max; v++){
+        opts.push(`<button type="button" data-id="${it.id}" data-v="${v}" onclick="setScore('${it.id}',${v})">${v}</button>`);
+      }
+      return `
+      <div class="item pending" id="item-${it.id}">
+        <div class="itop">
+          <span class="code">${esc(it.code)}</span>
+          <div class="itxt">${esc(it.text)}${it.note?`<div class="note">備註：${esc(it.note)}</div>`:''}</div>
+          <span class="max">配分 ${it.max}</span>
+        </div>
+        <div class="opts" data-max="${it.max}">${opts.join('')}</div>
+      </div>`;
+    }).join('');
+    return `
+    <div class="card" id="sec-${si}">
+      <div class="ct">
+        <span class="idx">${esc(sec.idx)}</span>
+        <div><h2>${esc(sec.title)}</h2>${sec.sub?`<div class="sub2">${esc(sec.sub)}</div>`:''}</div>
+        <div class="sec-score"><b id="secs-${si}">0</b>/${secMax}</div>
+        <button type="button" class="full" onclick="fillSection(${si})">滿分</button>
+      </div>
+      ${items}
+    </div>`;
+  }).join('');
+}
+
+function setScore(id, v){
+  scores[id] = v;
+  const item = document.getElementById('item-'+id);
+  const max = ALL.find(x=>x.id===id).max;
+  item.classList.remove('pending');
+  item.querySelectorAll('.opts button').forEach(b=>{
+    const bv = Number(b.dataset.v);
+    b.classList.toggle('on', bv===v);
+    b.classList.toggle('zero', bv===v && v===0);
+    b.classList.toggle('full', bv===v && v===max);
+  });
+  updateTotals();
+}
+
+function fillSection(si){ SECTIONS[si].items.forEach(it=>setScore(it.id, it.max)); }
+function fillAll(){ ALL.forEach(it=>setScore(it.id, it.max)); }
+function clearAll(){
+  if(!confirm('確定要清除所有評分嗎？')) return;
+  ALL.forEach(it=>{
+    delete scores[it.id];
+    const item = document.getElementById('item-'+it.id);
+    item.classList.add('pending');
+    item.querySelectorAll('.opts button').forEach(b=>b.classList.remove('on','zero','full'));
+  });
+  updateTotals();
+}
+function pendingList(){ return ALL.filter(it=>scores[it.id]===undefined); }
+function jumpPending(){
+  const p = pendingList();
+  if(!p.length){ alert('所有項目都已評分完成。'); return; }
+  document.getElementById('item-'+p[0].id).scrollIntoView({block:'center', behavior:'smooth'});
+}
+
+function updateTotals(){
+  let total = 0;
+  SECTIONS.forEach((sec,si)=>{
+    const s = sec.items.reduce((a,it)=>a + (scores[it.id]||0), 0);
+    total += s;
+    const el = document.getElementById('secs-'+si);
+    if(el) el.textContent = s;
+  });
+  const pend = pendingList().length;
+  document.getElementById('hdScore').textContent = total;
+  document.getElementById('ftScore').textContent = total;
+  document.getElementById('hdBar').style.width = (total/MAX_TOTAL*100) + '%';
+  const ft = document.getElementById('ftPending');
+  ft.innerHTML = pend ? `<span class="warnpend">尚有 ${pend} 項未評分</span>` : `全部 ${ALL.length} 項已評分完成`;
+}
+
+/* ===================== 送出 ===================== */
+function showPanel(html){
+  document.getElementById('panel').innerHTML = html;
+  document.getElementById('overlay').classList.add('show');
+}
+function closePanel(){ document.getElementById('overlay').classList.remove('show'); }
+
+const IS_EMBEDDED = (function(){ try{ return window.self !== window.top; }catch(e){ return true; } })();
+
+// 備援送出：用隱藏表單 POST 到隱藏 iframe，完全繞過 CORS
+function submitViaIframe(payload){
+  return new Promise(function(resolve, reject){
+    const name = 'gasfr_' + Date.now();
+    const ifr = document.createElement('iframe');
+    ifr.name = name; ifr.style.display = 'none';
+    document.body.appendChild(ifr);
+
+    const form = document.createElement('form');
+    form.action = GAS_URL; form.method = 'POST'; form.target = name; form.style.display = 'none';
+    const input = document.createElement('input');
+    input.type = 'hidden'; input.name = 'payload'; input.value = JSON.stringify(payload);
+    form.appendChild(input);
+    document.body.appendChild(form);
+
+    let submitted = false, finished = false;
+    function cleanup(){ setTimeout(function(){ form.remove(); ifr.remove(); }, 200); }
+    ifr.onload = function(){
+      if(!submitted || finished) return;
+      finished = true; cleanup(); resolve('iframe');
+    };
+    submitted = true;
+    form.submit();
+    setTimeout(function(){
+      if(finished) return;
+      finished = true; cleanup(); reject(new Error('送出逾時'));
+    }, 20000);
+  });
+}
+
+async function submitForm(){
+  const evalDate = document.getElementById('evalDate').value;
+  const unit = document.getElementById('unit').value.trim();
+  const teacher = document.getElementById('teacher').value.trim();
+
+  if(!evalDate){ alert('請填寫評核日期。'); return; }
+  if(!unit){ alert('請填寫受評單位。'); document.getElementById('unit').focus(); return; }
+  if(!teacher){ alert('請填寫評核教師。'); document.getElementById('teacher').focus(); return; }
+
+  const pend = pendingList();
+  if(pend.length){
+    if(!confirm(`尚有 ${pend.length} 項未評分，未評分項目將以 0 分計算。仍要送出嗎？`)){ jumpPending(); return; }
+  }
+
+  const answers = {};
+  ALL.forEach(it=> answers[it.id] = (scores[it.id]===undefined ? 0 : scores[it.id]));
+  const total = ALL.reduce((a,it)=>a+answers[it.id],0);
+
+  const payload = {
+    formType:'nurse',
+    evalDate, unit, teacher,
+    totalScore: total,
+    maxScore: MAX_TOTAL,
+    answers,
+    strength: document.getElementById('strength').value,
+    suggest: document.getElementById('suggest').value
+  };
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  showPanel('<div class="spinner"></div><h3>正在送出</h3><p>寫入 Google 試算表並產生 PDF，請稍候。</p>');
+
+  let lastErr = '';
+  // 方式一：直接 fetch，可讀回評核編號
+  try{
+    const res = await fetch(GAS_URL, { method:'POST', body: JSON.stringify(payload), redirect:'follow' });
+    const out = await res.json();
+    if(out.ok){ successPanel(out.serial, total); return; }
+    throw new Error(out.message || '伺服器回傳失敗');
+  }catch(err){ lastErr = err.message || String(err); }
+
+  // 方式二：隱藏表單送出，繞過跨網域限制（讀不到編號）
+  try{
+    await submitViaIframe(payload);
+    successPanel('已送出，編號請至試算表查看', total);
+    return;
+  }catch(e2){ lastErr = lastErr || (e2.message || String(e2)); }
+
+  btn.disabled = false;
+  const hint = IS_EMBEDDED
+    ? '這個頁面正在預覽視窗中執行，預覽環境不允許連線到 Google 伺服器。請將 HTML 檔下載後用瀏覽器開啟，或上傳到 GitHub Pages 再送出。'
+    : '請確認網路連線，並確認 GAS 已「重新部署新版本」、存取權設定為「任何人」。';
+  showPanel(`<h3 style="color:#B4472E">送出失敗</h3><p>${hint}</p>
+    <p style="font-size:12px;color:#98A0AE">${esc(lastErr)}</p>
+    <button type="button" onclick="closePanel()">返回繼續填寫</button>`);
+}
+
+function successPanel(serial, total){
+  showPanel(`
+    <h3>已送出</h3>
+    <div class="big">${total} <span style="font-size:18px;color:#6B7688">/ ${MAX_TOTAL} 分</span></div>
+    <p>資料已寫入「護理評核」工作表，PDF 已存入當日 Drive 資料夾。</p>
+    <div class="serial">評核編號：${esc(serial)}</div>
+    <button type="button" onclick="resetForm()">再填一份（保留單位與教師）</button>
+    <button type="button" class="ghost" onclick="location.reload()">全部重新開始</button>
+  `);
+}
+
+function resetForm(){
+  ALL.forEach(it=>{
+    delete scores[it.id];
+    const item = document.getElementById('item-'+it.id);
+    item.classList.add('pending');
+    item.querySelectorAll('.opts button').forEach(b=>b.classList.remove('on','zero','full'));
+  });
+  document.getElementById('strength').value = '';
+  document.getElementById('suggest').value = '';
+  document.getElementById('submitBtn').disabled = false;
+  updateTotals();
+  closePanel();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+/* ===================== 初始化 ===================== */
+(function init(){
+  const d = new Date();
+  const today = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+  document.getElementById('evalDate').value = today;
+  if(IS_EMBEDDED) document.getElementById('previewWarn').style.display = 'block';
+  render();
+  updateTotals();
+})();
+</script>
+</body>
+</html>
