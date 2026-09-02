@@ -172,7 +172,17 @@ function field(r, names){
   return '';
 }
 function teacherOf(r){ return String(field(r, ['teacher','evaluator','teacherName','評核教師','指導教師'])).trim(); }
-function pdfOf(r){ return String(field(r, ['pdfUrl','pdfURL','pdfLink','pdf','fileUrl','reportUrl','PDF連結','PDF網址'])).trim(); }
+function pdfOf(r){
+  const value = field(r, [
+    'pdfUrl','pdfURL','pdf_url','pdfLink','pdfFileUrl','pdf','fileUrl','reportUrl',
+    'PDF連結','PDF網址','PDF 檔案','評核PDF','評核 PDF'
+  ]);
+  // GAS may return a plain URL, a Drive file ID, or a rich-link object.
+  if(value && typeof value === 'object'){
+    return String(field(value, ['url','href','link','webViewLink','downloadUrl','id'])).trim();
+  }
+  return String(value || '').trim();
+}
 function feedbackOf(r){
   const strength = field(r, ['strength','good','positive','表現良好之處']);
   const suggest = field(r, ['suggest','suggestion','improvement','建議改善事項']);
@@ -182,7 +192,10 @@ function feedbackOf(r){
   return out || '<span class="pdf-missing">未填寫質性回饋</span>';
 }
 function safeUrl(url){
-  try{ const u = new URL(url, location.href); return /^https?:$/.test(u.protocol) ? u.href : ''; }
+  const value = String(url || '').trim();
+  // Drive IDs are sometimes stored in the sheet instead of the complete URL.
+  if(/^[\w-]{20,}$/.test(value)) return 'https://drive.google.com/file/d/' + encodeURIComponent(value) + '/view';
+  try{ const u = new URL(value, location.href); return /^https?:$/.test(u.protocol) ? u.href : ''; }
   catch(e){ return ''; }
 }
 function bar(label, value, max, color, suffix){
