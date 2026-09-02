@@ -272,7 +272,6 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--orange);
     <div class="done-actions">
       <a class="primary pdf-action" id="viewPdf" href="#" target="_blank" rel="noopener noreferrer" hidden>查看評核表</a>
       <button class="primary" id="againSame">繼續評核下一位學員</button>
-      <button class="ghost" id="againNew">重新開始新的一份</button>
     </div>
   </div>
 </div>
@@ -332,6 +331,8 @@ var SECTIONS = [
 
 var TOTAL = SECTIONS.reduce(function(n,s){return n+s.items.length;},0);
 var answers = {};
+var submittedEvaluation = null;
+var evaluationViewUrl = '';
 var IS_GAS = (typeof google !== 'undefined' && google.script && google.script.run);
 
 /* 這是您提供的最新 GAS 網址 */
@@ -451,6 +452,8 @@ document.getElementById('submitBtn').addEventListener('click', function(){
     suggest: val('f_suggest'),
     answers: answers
   };
+  // 保留送出當下的快照；後續清空表單也不會影響「查看評核表」內容。
+  submittedEvaluation = JSON.parse(JSON.stringify(payload));
 
   document.getElementById('errBox').classList.remove('show');
   var btn = this;
@@ -560,26 +563,52 @@ function showDone(res){
            '<div class="track"><div class="val" style="width:'+pct+'%"></div></div></div>';
   }).join('');
   var pdfLink = document.getElementById('viewPdf');
-  var pdfUrl = safePdfUrl(res.pdfUrl);
-  pdfLink.hidden = !pdfUrl;
-  pdfLink.href = pdfUrl || '#';
+  // 後端 PDF 網址可能因權限或跨網域而無法顯示；改以本次送出的完整資料
+  // 建立唯讀評核表，確保老師能立即查看每一題與質性回饋。
+  if(evaluationViewUrl) URL.revokeObjectURL(evaluationViewUrl);
+  evaluationViewUrl = URL.createObjectURL(new Blob([buildEvaluationView(submittedEvaluation)], {type:'text/html;charset=utf-8'}));
+  pdfLink.hidden = false;
+  pdfLink.href = evaluationViewUrl;
   window.scrollTo({top:0, behavior:'auto'});
 }
 
-function safePdfUrl(url){
-  try{
-    var parsed = new URL(String(url || ''), window.location.href);
-    return /^https?:$/.test(parsed.protocol) ? parsed.href : '';
-  }catch(e){ return ''; }
+function escHtml(value){
+  return String(value === undefined || value === null ? '' : value)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 
-function resetForm(keepTeacher){
+function buildEvaluationView(p){
+  p = p || {};
+  var savedAnswers = p.answers || {};
+  var rows = SECTIONS.map(function(sec){
+    var items = sec.items.map(function(it){
+      var answer = savedAnswers[it.id] || '未填';
+      var cls = answer === '有' ? 'yes' : (answer === '沒有' ? 'no' : '');
+      return '<tr><td class="code">'+escHtml(it.id)+'</td><td>'+escHtml(it.text)+'</td><td class="answer '+cls+'">'+escHtml(answer)+'</td></tr>';
+    }).join('');
+    return '<h2>'+escHtml(sec.name)+'</h2><table><thead><tr><th>題號</th><th>評核項目</th><th>結果</th></tr></thead><tbody>'+items+'</tbody></table>';
+  }).join('');
+  var nl2br = function(value){ return escHtml(value || '無').replace(/\r?\n/g,'<br>'); };
+  return '<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">'+
+    '<title>西醫指導教師評核表</title><style>'+
+    'body{font-family:"Microsoft JhengHei","PingFang TC",sans-serif;color:#1d2433;max-width:900px;margin:0 auto;padding:24px;background:#f5f7fa}'+
+    '.sheet{background:#fff;padding:28px;border-radius:14px;box-shadow:0 4px 20px #0b1a3a18}h1{text-align:center;color:#0b1a3a;margin:0 0 6px}'+
+    '.case{text-align:center;color:#6b7688;margin-bottom:22px}.info{display:grid;grid-template-columns:1fr 1fr;gap:8px 24px;padding:14px;background:#f7f9fc;border-radius:10px}'+
+    'h2{font-size:17px;color:#14275a;border-left:5px solid #f39220;padding-left:9px;margin-top:24px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #dce2ec;padding:8px;text-align:left}th{background:#edf1f8}'+
+    '.code{width:52px;color:#14275a;font-weight:700}.answer{width:72px;text-align:center;font-weight:800}.yes{color:#0e7c5a}.no{color:#b4472e}.feedback{white-space:normal;border:1px solid #dce2ec;background:#fafafa;padding:12px;min-height:40px}'+
+    '.print{display:block;margin:0 auto 18px;padding:10px 20px;border:0;border-radius:9px;background:#0b1a3a;color:#fff;font-weight:700;cursor:pointer}@media print{body{padding:0;background:#fff}.sheet{box-shadow:none}.print{display:none}}@media(max-width:600px){body{padding:10px}.sheet{padding:16px}.info{grid-template-columns:1fr}}'+
+    '</style></head><body><button class="print" onclick="window.print()">列印／另存 PDF</button><main class="sheet"><h1>PGY TRM 西醫指導教師評核表</h1>'+
+    '<div class="case">情境教案：'+escHtml(p.caseName || '')+'</div><div class="info"><div><b>評核日期：</b>'+escHtml(p.evalDate || '')+'</div><div><b>受評學員：</b>'+escHtml(p.student || '')+'</div><div><b>指導教師：</b>'+escHtml(p.teacher || '')+'</div></div>'+
+    rows+'<h2>質性回饋</h2><p><b>表現良好之處</b></p><div class="feedback">'+nl2br(p.strength)+'</div><p><b>建議改善事項</b></p><div class="feedback">'+nl2br(p.suggest)+'</div></main></body></html>';
+}
+
+function resetForm(){
   answers = {};
   document.querySelectorAll('.seg button').forEach(function(b){ b.classList.remove('on-yes','on-no'); });
   document.querySelectorAll('.item').forEach(function(r){ r.classList.remove('unanswered'); });
   ['f_strength','f_suggest'].forEach(function(id){ document.getElementById(id).value=''; });
   document.getElementById('f_student').value = 'PGY2';
-  if(!keepTeacher){ document.getElementById('f_teacher').value = ''; }
   document.getElementById('submitBtn').disabled = true;
   document.getElementById('submitBtn').textContent = '送出評核';
   document.getElementById('doneScreen').classList.remove('show');
@@ -587,8 +616,7 @@ function resetForm(keepTeacher){
   document.getElementById('footbar').style.display='';
   refresh(); window.scrollTo({top:0});
 }
-document.getElementById('againSame').addEventListener('click', function(){ resetForm(true); toast('已保留指導教師，可評下一位'); });
-document.getElementById('againNew').addEventListener('click', function(){ resetForm(false); });
+document.getElementById('againSame').addEventListener('click', function(){ resetForm(); toast('已保留指導教師，可評下一位'); });
 
 if(MODE==='demo'){ document.getElementById('demoNote').classList.add('show'); }
 refresh();
