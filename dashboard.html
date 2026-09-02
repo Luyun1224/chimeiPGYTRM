@@ -287,32 +287,8 @@ function renderAll(){
         + pairBlock(pairs)
         + (f.doctor.length ? doctorBlock(f.doctor) : '')
         + (f.nurse.length ? nurseBlock(f.nurse) : '')
-        + evaluationRecordsBlock(f.doctor, f.nurse)
         + surveyBlock(f.survey);
   document.getElementById('content').innerHTML = html;
-}
-
-/* ---------- 教師個別評核紀錄 ---------- */
-function evaluationRecordsBlock(dr, nr){
-  const records = dr.map(function(r){
-    return {type:'醫師 TRM', serial:field(r, ['serial','id','評核編號']), date:r.date, teacher:teacherOf(r), target:r.student || '—', context:r.caseName || '—', feedback:feedbackOf(r), pdf:pdfOf(r)};
-  }).concat(nr.map(function(r){
-    return {type:'護理 CPCR', serial:field(r, ['serial','id','評核編號']), date:r.date, teacher:teacherOf(r), target:r.unit || '—', context:'技術評核', feedback:feedbackOf(r), pdf:pdfOf(r)};
-  })).sort(function(a,b){ return String(b.date).localeCompare(String(a.date)); });
-
-  if(!records.length) return '';
-  const rows = records.map(function(r){
-    const url = safeUrl(r.pdf);
-    const pdf = url
-      ? '<a class="pdf-link" href="' + esc(url) + '" target="_blank" rel="noopener noreferrer" aria-label="開啟完整評核 PDF">開啟完整 PDF ↗</a>'
-      : '<span class="pdf-missing">尚無 PDF 連結</span>';
-    return '<tr><td>' + esc(r.date || '—') + '</td><td>' + esc(r.serial || '—') + '</td><td><span class="tag n">' + esc(r.type) + '</span></td>' +
-      '<td>' + esc(r.teacher || '—') + '</td><td>' + esc(r.target) + '</td><td>' + esc(r.context) + '</td>' +
-      '<td class="feedback">' + r.feedback + '</td><td>' + pdf + '</td></tr>';
-  }).join('');
-  return '<h2 class="sec">教師個別評核紀錄<span>共 ' + records.length + ' 份，可由上方篩選自己的姓名</span></h2>' +
-    '<div class="card"><h3>完整評核內容 <small>質性回饋直接呈現；量性逐項內容請開啟原始 PDF</small></h3>' +
-      '<div class="record-table-wrap"><table><tr><th>日期</th><th>評核編號</th><th>類別</th><th>評核教師</th><th>受評對象</th><th>情境／項目</th><th>質性回饋</th><th>完整內容</th></tr>' + rows + '</table></div></div>';
 }
 
 /* ---------- KPI ---------- */

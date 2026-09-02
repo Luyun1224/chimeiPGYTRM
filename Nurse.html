@@ -89,6 +89,7 @@ header{
 .item::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:transparent;transition:background .15s ease}
 .item.pending::before{background:#F0C583}
 .item.zero::before{background:var(--red)}
+.item.not-operated::before{background:#98A0AE}
 .item.partial::before{background:#D89A2B}
 .item.full::before{background:var(--green)}
 .itxt{flex:1 1 auto;min-width:0;font-size:15px;font-weight:700;line-height:1.55;color:#16203A}
@@ -112,6 +113,8 @@ header{
 .opts button.on{background:var(--navy);border-color:var(--navy);color:#fff}
 .opts button.on.zero{background:var(--red);border-color:var(--red)}
 .opts button.on.full{background:var(--green);border-color:var(--green)}
+.opts button.not-operated{width:auto;min-width:66px;padding:0 9px;font-size:13px}
+.opts button.on.not-operated{background:#98A0AE;border-color:#98A0AE;color:#fff}
 .opts button:focus-visible{outline:2px solid var(--orange);outline-offset:2px}
 @media(max-width:720px){
   .item{display:block;padding:12px 14px 12px 18px}
@@ -212,6 +215,7 @@ header{
   <div style="display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted);padding:8px 4px 2px">
     <span><i style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#F0C583;vertical-align:0"></i> 未評分</span>
     <span><i style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#B4472E;vertical-align:0"></i> 0 分</span>
+    <span><i style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#98A0AE;vertical-align:0"></i> 未操作</span>
     <span><i style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#D89A2B;vertical-align:0"></i> 部分給分</span>
     <span><i style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#0E7C5A;vertical-align:0"></i> 滿分</span>
   </div>
@@ -335,7 +339,8 @@ const SECTIONS = [
 
 const ALL = SECTIONS.flatMap(s => s.items);
 const MAX_TOTAL = ALL.reduce((a,b)=>a+b.max,0);
-const scores = {};   // id -> number | undefined
+const NOT_OPERATED = 'not-operated';
+const scores = {};   // id -> number | "not-operated" | undefined
 
 /* ===================== 畫面 ===================== */
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
@@ -349,6 +354,7 @@ function render(){
       for(let v=0; v<=it.max; v++){
         opts.push(`<button type="button" data-id="${it.id}" data-v="${v}" onclick="setScore('${it.id}',${v})">${v}</button>`);
       }
+      opts.push(`<button type="button" class="not-operated" data-id="${it.id}" data-v="${NOT_OPERATED}" onclick="setScore('${it.id}',NOT_OPERATED)">未操作</button>`);
       return `
       <div class="item pending" id="item-${it.id}">
         <div class="itxt"><span class="code">${esc(it.code)}</span>${esc(it.text)}${it.note?`<span class="note">備註：${esc(it.note)}</span>`:''}</div>
@@ -375,10 +381,10 @@ function setScore(id, v){
   scores[id] = v;
   const item = document.getElementById('item-'+id);
   const max = ALL.find(x=>x.id===id).max;
-  item.classList.remove('pending','zero','partial','full');
-  item.classList.add(v===0 ? 'zero' : (v===max ? 'full' : 'partial'));
+  item.classList.remove('pending','zero','partial','full','not-operated');
+  item.classList.add(v===NOT_OPERATED ? 'not-operated' : (v===0 ? 'zero' : (v===max ? 'full' : 'partial')));
   item.querySelectorAll('.opts button').forEach(b=>{
-    const bv = Number(b.dataset.v);
+    const bv = b.dataset.v===NOT_OPERATED ? NOT_OPERATED : Number(b.dataset.v);
     b.classList.toggle('on', bv===v);
     b.classList.toggle('zero', bv===v && v===0);
     b.classList.toggle('full', bv===v && v===max);
@@ -393,7 +399,7 @@ function clearAll(){
   ALL.forEach(it=>{
     delete scores[it.id];
     const item = document.getElementById('item-'+it.id);
-    item.classList.remove('zero','partial','full');
+    item.classList.remove('zero','partial','full','not-operated');
     item.classList.add('pending');
     item.querySelectorAll('.opts button').forEach(b=>b.classList.remove('on','zero','full'));
   });
@@ -409,7 +415,7 @@ function jumpPending(){
 function updateTotals(){
   let total = 0;
   SECTIONS.forEach((sec,si)=>{
-    const s = sec.items.reduce((a,it)=>a + (scores[it.id]||0), 0);
+    const s = sec.items.reduce((a,it)=>a + (typeof scores[it.id]==='number' ? scores[it.id] : 0), 0);
     total += s;
     const el = document.getElementById('secs-'+si);
     if(el) el.textContent = s;
@@ -476,7 +482,8 @@ async function submitForm(){
   }
 
   const answers = {};
-  ALL.forEach(it=> answers[it.id] = (scores[it.id]===undefined ? 0 : scores[it.id]));
+  // 後端原有分數欄位維持數字相容，並另外傳送未操作項目供記錄使用。
+  ALL.forEach(it=> answers[it.id] = (typeof scores[it.id]==='number' ? scores[it.id] : 0));
   const total = ALL.reduce((a,it)=>a+answers[it.id],0);
 
   const payload = {
@@ -485,6 +492,7 @@ async function submitForm(){
     totalScore: total,
     maxScore: MAX_TOTAL,
     answers,
+    notOperated: ALL.filter(it=>scores[it.id]===NOT_OPERATED).map(it=>it.id),
     strength: document.getElementById('strength').value,
     suggest: document.getElementById('suggest').value
   };
@@ -542,7 +550,7 @@ function resetForm(){
   ALL.forEach(it=>{
     delete scores[it.id];
     const item = document.getElementById('item-'+it.id);
-    item.classList.remove('zero','partial','full');
+    item.classList.remove('zero','partial','full','not-operated');
     item.classList.add('pending');
     item.querySelectorAll('.opts button').forEach(b=>b.classList.remove('on','zero','full'));
   });
