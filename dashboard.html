@@ -33,6 +33,13 @@ header{background:linear-gradient(135deg,var(--navy) 0%,var(--navy-2) 100%);colo
 .fg select{font-family:inherit;font-size:14px;border:1px solid var(--line);border-radius:9px;padding:9px 12px;background:#fff;min-width:170px;color:var(--txt)}
 .fg select:focus{outline:2px solid var(--orange);outline-offset:1px}
 .fnote{margin-left:auto;font-size:12px;color:var(--muted);text-align:right}
+.record-table-wrap{overflow-x:auto}
+.feedback{min-width:220px;max-width:360px;white-space:pre-line;line-height:1.55}
+.feedback b{display:block;color:var(--navy-2);font-size:12px;margin-top:5px}
+.feedback b:first-child{margin-top:0}
+.pdf-link{display:inline-flex;align-items:center;gap:5px;color:#fff;background:var(--navy-2);border-radius:7px;padding:6px 10px;text-decoration:none;font-size:12px;font-weight:700;white-space:nowrap}
+.pdf-link:hover{background:var(--navy)}
+.pdf-missing{font-size:12px;color:var(--muted);white-space:nowrap}
 
 h2.sec{font-size:17px;color:var(--navy);margin:26px 0 12px;padding-left:11px;border-left:5px solid var(--orange);font-weight:700}
 h2.sec span{font-size:13px;color:var(--muted);font-weight:400;margin-left:8px}
@@ -135,6 +142,7 @@ tr:last-child td{border-bottom:none}
   <div class="fin">
     <div class="fg"><label>訓練場次（日期）</label><select id="fDate" onchange="renderAll()"><option>全部</option></select></div>
     <div class="fg"><label>單位</label><select id="fUnit" onchange="renderAll()"><option>全部</option></select></div>
+    <div class="fg"><label>評核教師</label><select id="fTeacher" onchange="renderAll()"><option>全部</option></select></div>
     <div class="fnote" id="fnote">—</div>
   </div>
 </div>
@@ -159,6 +167,24 @@ function r1(n){ return Math.round(n*10)/10; }
 function r2(n){ return Math.round(n*100)/100; }
 function uniq(a){ return a.filter(function(v,i){ return v && a.indexOf(v)===i; }).sort(); }
 function pct(n){ return Math.max(0, Math.min(100, n)); }
+function field(r, names){
+  for(let i=0;i<names.length;i++) if(r[names[i]] !== undefined && r[names[i]] !== null) return r[names[i]];
+  return '';
+}
+function teacherOf(r){ return String(field(r, ['teacher','evaluator','teacherName','評核教師','指導教師'])).trim(); }
+function pdfOf(r){ return String(field(r, ['pdfUrl','pdfURL','pdfLink','pdf','fileUrl','reportUrl','PDF連結','PDF網址'])).trim(); }
+function feedbackOf(r){
+  const strength = field(r, ['strength','good','positive','表現良好之處']);
+  const suggest = field(r, ['suggest','suggestion','improvement','建議改善事項']);
+  let out = '';
+  if(strength) out += '<b>表現良好之處</b>' + esc(strength);
+  if(suggest) out += '<b>建議改善事項</b>' + esc(suggest);
+  return out || '<span class="pdf-missing">未填寫質性回饋</span>';
+}
+function safeUrl(url){
+  try{ const u = new URL(url, location.href); return /^https?:$/.test(u.protocol) ? u.href : ''; }
+  catch(e){ return ''; }
+}
 function bar(label, value, max, color, suffix){
   return '<div class="brow"><div class="t">' + esc(label) + '</div>' +
     '<div class="track"><div class="fill" style="width:' + (max?pct(value/max*100):0) + '%;background:' + color + '"></div></div>' +
@@ -204,21 +230,25 @@ function initFilters(){
     DATA.nurse.map(function(x){return x.date;}), DATA.doctor.map(function(x){return x.date;})
   )).reverse();
   const units = uniq([].concat(DATA.quiz.map(function(x){return x.unit;}), DATA.nurse.map(function(x){return x.unit;})));
+  const teachers = uniq([].concat(DATA.nurse.map(teacherOf), DATA.doctor.map(teacherOf)));
   document.getElementById('fDate').innerHTML = '<option>全部</option>' + dates.map(function(d){return '<option>'+d+'</option>';}).join('');
   document.getElementById('fUnit').innerHTML = '<option>全部</option>' + units.map(function(u){return '<option>'+esc(u)+'</option>';}).join('');
+  document.getElementById('fTeacher').innerHTML = '<option>全部</option>' + teachers.map(function(t){return '<option>'+esc(t)+'</option>';}).join('');
   document.getElementById('fnote').innerHTML = '資料更新於 ' + (DATA.meta.generated || '') + '<br>共 ' + dates.length + ' 個訓練日期';
 }
 
 function filtered(){
   const d = document.getElementById('fDate').value;
   const u = document.getElementById('fUnit').value;
+  const t = document.getElementById('fTeacher').value;
   const base = function(r){ return (d === '全部' || r.date === d) && (u === '全部' || !r.unit || r.unit === u); };
+  const byTeacher = function(r){ return t === '全部' || teacherOf(r) === t; };
   const byRole = function(r){ return ROLE === '全部' || r.role === ROLE; };
   return {
     quiz:   DATA.quiz.filter(function(r){ return base(r) && byRole(r); }),
     survey: DATA.survey.filter(function(r){ return base(r) && byRole(r); }),
-    nurse:  (ROLE === '醫師') ? [] : DATA.nurse.filter(base),
-    doctor: (ROLE === '護理師') ? [] : DATA.doctor.filter(base),
+    nurse:  (ROLE === '醫師') ? [] : DATA.nurse.filter(function(r){return base(r) && byTeacher(r);}),
+    doctor: (ROLE === '護理師') ? [] : DATA.doctor.filter(function(r){return base(r) && byTeacher(r);}),
     untagged: DATA.quiz.filter(function(r){ return base(r) && r.role === '未標示'; }).length
   };
 }
@@ -244,8 +274,32 @@ function renderAll(){
         + pairBlock(pairs)
         + (f.doctor.length ? doctorBlock(f.doctor) : '')
         + (f.nurse.length ? nurseBlock(f.nurse) : '')
+        + evaluationRecordsBlock(f.doctor, f.nurse)
         + surveyBlock(f.survey);
   document.getElementById('content').innerHTML = html;
+}
+
+/* ---------- 教師個別評核紀錄 ---------- */
+function evaluationRecordsBlock(dr, nr){
+  const records = dr.map(function(r){
+    return {type:'醫師 TRM', serial:field(r, ['serial','id','評核編號']), date:r.date, teacher:teacherOf(r), target:r.student || '—', context:r.caseName || '—', feedback:feedbackOf(r), pdf:pdfOf(r)};
+  }).concat(nr.map(function(r){
+    return {type:'護理 CPCR', serial:field(r, ['serial','id','評核編號']), date:r.date, teacher:teacherOf(r), target:r.unit || '—', context:'技術評核', feedback:feedbackOf(r), pdf:pdfOf(r)};
+  })).sort(function(a,b){ return String(b.date).localeCompare(String(a.date)); });
+
+  if(!records.length) return '';
+  const rows = records.map(function(r){
+    const url = safeUrl(r.pdf);
+    const pdf = url
+      ? '<a class="pdf-link" href="' + esc(url) + '" target="_blank" rel="noopener noreferrer" aria-label="開啟完整評核 PDF">開啟完整 PDF ↗</a>'
+      : '<span class="pdf-missing">尚無 PDF 連結</span>';
+    return '<tr><td>' + esc(r.date || '—') + '</td><td>' + esc(r.serial || '—') + '</td><td><span class="tag n">' + esc(r.type) + '</span></td>' +
+      '<td>' + esc(r.teacher || '—') + '</td><td>' + esc(r.target) + '</td><td>' + esc(r.context) + '</td>' +
+      '<td class="feedback">' + r.feedback + '</td><td>' + pdf + '</td></tr>';
+  }).join('');
+  return '<h2 class="sec">教師個別評核紀錄<span>共 ' + records.length + ' 份，可由上方篩選自己的姓名</span></h2>' +
+    '<div class="card"><h3>完整評核內容 <small>質性回饋直接呈現；量性逐項內容請開啟原始 PDF</small></h3>' +
+      '<div class="record-table-wrap"><table><tr><th>日期</th><th>評核編號</th><th>類別</th><th>評核教師</th><th>受評對象</th><th>情境／項目</th><th>質性回饋</th><th>完整內容</th></tr>' + rows + '</table></div></div>';
 }
 
 /* ---------- KPI ---------- */
